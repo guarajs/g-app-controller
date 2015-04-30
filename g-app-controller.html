@@ -1,0 +1,15 @@
+<polymer-element name="g-app-controller" attributes="user">
+	<template>
+		<template if="{{ user }}">
+			<content select="[whenLoggedIn]"></content>
+		</template>
+		<template if="{{ !user }}">
+			<content select="[whenNotLoggedIn]"></content>
+		</template>
+	</template>
+	<script>
+		Polymer({
+			user: null,
+		});
+	</script>
+</polymer-element>
