@@ -1,9 +1,9 @@
 <polymer-element name="g-app-controller" attributes="cookie user">
 	<template>
-		<template if="{{ user }}">
+		<template if="{{ loggedIn }}">
 			<content select="[whenLoggedIn]"></content>
 		</template>
-		<template if="{{ !user }}">
+		<template if="{{ !loggedIn }}">
 			<content select="[whenNotLoggedIn]"></content>
 		</template>
 	</template>
@@ -55,10 +55,25 @@
 			  }
 			};
 
+			var _router = null;
+
 			Polymer({
 				user: null,
 
+				loggedIn: false,
+
+				login: function(target) {
+					this.loggedIn = true;
+					_router.init();
+					_router.goTo(target);
+				},
+
+				logoff: function() {
+					this.loggedIn = false;
+				},
+
 				ready: function() {
+					_router = document.querySelector('g-app-router');
 					var username = docCookies.getItem(this.cookie);
 					if(username)
 					{
