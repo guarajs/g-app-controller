@@ -1,48 +1,47 @@
 <link rel="import" href="../g-cookies/g-cookies.html">
 
-<polymer-element name="g-app-controller" attributes="cookieName user">
+<polymer-element name="g-app-controller" attributes="sessionCookieName start">
 	<template>
+		<link rel="stylesheet" href="g-app-controller.css">
 		<g-cookies id="cookies"></g-cookies>
-		<template if="{{ loggedIn }}">
-			<content select="[whenLoggedIn]"></content>
-		</template>
-		<template if="{{ !loggedIn }}">
+		<div class="{{ !loggedIn ? 'show' : 'hide' }}">
 			<content select="[whenNotLoggedIn]"></content>
-		</template>
+		</div>
+		<div class="{{ loggedIn ? 'show' : 'hide' }}">
+			<content select="[whenLoggedIn]"></content>
+		</div>
 	</template>
 	<script>
-		(function(){
-			var _router = null;
+		Polymer('g-app-controller', {
 
-			Polymer({
-				user: null,
+			loggedIn: false,
 
-				loggedIn: false,
+			logoff: function() {
+				this.loggedIn = false;
+			},
 
-				login: function(target) {
-					this.loggedIn = true;
-					_router.init();
-					_router.goTo(target);
-				},
+			ready: function() {
 
-				logoff: function() {
-					this.loggedIn = false;
-				},
+				var router = this.querySelector('g-app-router');
+				if(router)
+				{
+					var $this = this;
+					var cookie = this.$.cookies.getItem(this.sessionCookieName);
+					var start = this.start;
 
-				ready: function() {
-					_router = document.querySelector('g-app-router');
-					var username = this.$.cookies.getItem(this.cookieName);
-					console.log(this.cookieName, '=', username);
-					if(username)
-					{
-						this.user = {
-							username: username
-						};
-					}
-				},
-			});
+					/* Can't know for sure if the external element is ready */
+					router.addEventListener('router-ready', function(){
+						if(cookie)
+						{
+							$this.loggedIn = true;
+							router.init();
+							router.goTo(start);
+						}
+					});
+				}
+			},
+		});
 
-		}());
 
 	</script>
 </polymer-element>
