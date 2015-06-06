@@ -22,7 +22,7 @@
 				this.token    = null;
 				this.loggedIn = false;
 			},
-			
+
 			domReady: function() {
 				console.log('[CONTROLLER] domReady');
 				var cookie = this.$.cookies.byName(this.sessionCookieName);
@@ -36,11 +36,11 @@
 			},
 
 			testSession: function() {
-				throw 'Please override the testSession() function'; 
+				throw 'Please override the testSession() function';
 			},
 
 			onSessionVerified: function(token) {
-				this.$.cookies.setItem(this.sessionCookieName, token);
+				this.$.cookies.add(this.sessionCookieName, token);
 				this.sessionCookie = token;
 				this.loggedIn = true;
 				var router = this.querySelector('g-app-router');
