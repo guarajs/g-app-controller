@@ -25,7 +25,7 @@
 			
 			domReady: function() {
 				console.log('[CONTROLLER] domReady');
-				var cookie = this.$.cookies.getItem(this.sessionCookieName);
+				var cookie = this.$.cookies.byName(this.sessionCookieName);
 				var handler = function(reply) {
 					if(reply.value)
 					{
