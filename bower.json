@@ -13,6 +13,6 @@
     "tests"
   ],
   "dependencies": {
-      "g-cookies": "master"
+      "g-cookies": "guarajs/g-cookies#master"
   }
 }
