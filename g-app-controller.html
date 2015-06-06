@@ -14,34 +14,41 @@
 	<script>
 		Polymer('g-app-controller', {
 
+			sessionCookie: null,
+
 			loggedIn: false,
 
 			logoff: function() {
+				this.token    = null;
 				this.loggedIn = false;
 			},
+			
+			domReady: function() {
+				console.log('[CONTROLLER] domReady');
+				var cookie = this.$.cookies.getItem(this.sessionCookieName);
+				var handler = function(reply) {
+					if(reply.value)
+					{
+						this.onSessionVerified(cookie);
+					}
+				};
+				this.testSession(cookie, handler.bind(this));
+			},
 
-			ready: function() {
+			testSession: function() {
+				throw 'Please override the testSession() function'; 
+			},
 
+			onSessionVerified: function(token) {
+				this.$.cookies.setItem(this.sessionCookieName, token);
+				this.sessionCookie = token;
+				this.loggedIn = true;
 				var router = this.querySelector('g-app-router');
 				if(router)
 				{
-					var $this = this;
-					var cookie = this.$.cookies.getItem(this.sessionCookieName);
-					var start = this.start;
-
-					/* Can't know for sure if the external element is ready */
-					router.addEventListener('router-ready', function(){
-						if(cookie)
-						{
-							$this.loggedIn = true;
-							router.init();
-							router.goTo(start);
-						}
-					});
+					router.init();
 				}
 			},
 		});
-
-
 	</script>
 </polymer-element>
