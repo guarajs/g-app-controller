@@ -1,0 +1,113 @@
+<script>
+    var Guara = Guara || {};
+
+    Guara.DebugBehavior = {
+        created: function() {
+            console.log(this.localName + '#' + this.id + ' was created');
+        },
+
+        attached: function() {
+            console.log(this.localName + '#' + this.id + ' was attached');
+        },
+
+        detached: function() {
+            console.log(this.localName + '#' + this.id + ' was detached');
+        },
+
+        attributeChanged: function(name, type) {
+            console.log(this.localName + '#' + this.id + ' attribute ' + name + ' was changed to ' + this.getAttribute(name));
+        },
+    };
+
+    Guara.AppControllerBehavior = {
+
+        properties: {
+            context: {
+                type: Object,
+                value: null,
+                notify: true,
+                observer: '_contextChanged',
+            },
+            appCookieName: {
+                type: String,
+                notify: true,
+                observer: '_appCookieNameChanged',
+                reflectToAttribute: true,
+            },
+        },
+
+        _appCookieNameChanged: function(value, old) {
+            var token = this.$.cookies.byName(this.appCookieName);
+            var handler = function(reply) {
+                this.onTokenVerified(token, reply);
+            };
+            this.testToken(token, handler.bind(this));
+        },
+
+        testToken: function(token, handler) {
+            throw 'Please override the testToken() function';
+        },
+
+        onTokenVerified: function(token, reply) {
+            if(reply && reply.allowed)
+            {
+                this.$.cookies.add(this.appCookieName, token);
+                this.sessionCookie = token;
+                this.context = reply.context;
+            }
+        },
+
+        // _startRouter: function() {
+        //     var router = this.querySelector('[router]');
+        //     console.log('Start Router', router);
+        //     if(router)
+        //     {
+        //         router.init();
+        //     }
+        // },
+        //
+        // _stopRouter: function() {
+        //     var router = this.querySelector('[router]');
+        //     console.log('Stop Router', router);
+        //     if(router)
+        //     {
+        //         router.stop();
+        //     }
+        // },
+
+        logoff: function() {
+            this.token   = null;
+            this.context = null;
+        },
+
+        isLoggedIn: function() {
+            return this.context ? !!this.context.profile : false;
+        },
+
+        _contextChanged: function(value, old) {
+            console.log("Context changed: ", old, '->', value);
+            //this.context.isLoggedIn = this.isLoggedIn(); //Will trigger the notification chain again
+
+            var out = this.querySelector('[whenLoggedOut]');
+            var inn = this.querySelector('[whenLoggedIn]');
+            if(this.isLoggedIn())
+            {
+                out.stop();
+                inn.start();
+            }
+            else
+            {
+                inn.stop();
+                out.start();
+            }
+        },
+
+        _computeWhenLoggedIn: function(context) {
+            return this.isLoggedIn() ? 'show' : 'hide';
+        },
+
+        _computeWhenLoggedOut: function(context) {
+            return this.isLoggedIn() ? 'hide' : 'show';
+        },
+    };
+</script>

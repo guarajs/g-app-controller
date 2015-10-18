@@ -1,54 +1,39 @@
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../g-cookies/g-cookies.html">
+<link rel="import" href="g-app-controller-behavior.html">
 
-<polymer-element name="g-app-controller" attributes="sessionCookieName start">
+<dom-module id="g-app-controller">
 	<template>
+		<style>
+			:host {
+				display: block;
+			}
+
+			.hide {
+				display: none;
+			}
+
+			.show {
+				display: block;
+			}
+		</style>
 		<link rel="stylesheet" href="g-app-controller.css">
 		<g-cookies id="cookies"></g-cookies>
-		<div class="{{ !loggedIn ? 'show' : 'hide' }}">
-			<content select="[whenNotLoggedIn]"></content>
-		</div>
-		<div class="{{ loggedIn ? 'show' : 'hide' }}">
-			<content select="[whenLoggedIn]"></content>
-		</div>
+	    <div class$="{{ _computeWhenLoggedOut(context) }}">
+	        <content select="[whenLoggedOut]"></content>
+	    </div>
+	    <div class$="{{ _computeWhenLoggedIn(context) }}">
+	        <content select="[whenLoggedIn]"></content>
+	    </div>
 	</template>
 	<script>
-		Polymer('g-app-controller', {
+		Polymer({
+			is: 'g-app-controller',
+			behaviors: [Guara.AppControllerBehavior],
 
-			sessionCookie: null,
-
-			loggedIn: false,
-
-			logoff: function() {
-				this.token    = null;
-				this.loggedIn = false;
-			},
-
-			domReady: function() {
-				console.log('[CONTROLLER] domReady');
-				var cookie = this.$.cookies.byName(this.sessionCookieName);
-				var handler = function(reply) {
-					if(reply.value)
-					{
-						this.onSessionVerified(cookie);
-					}
-				};
-				this.testSession(cookie, handler.bind(this));
-			},
-
-			testSession: function() {
-				throw 'Please override the testSession() function';
-			},
-
-			onSessionVerified: function(token) {
-				this.$.cookies.add(this.sessionCookieName, token);
-				this.sessionCookie = token;
-				this.loggedIn = true;
-				var router = this.querySelector('g-app-router');
-				if(router)
-				{
-					router.init();
-				}
-			},
+			testToken: function(token, callback) {
+				callback();
+			}
 		});
 	</script>
-</polymer-element>
+</dom-module>
